@@ -1,0 +1,25 @@
+cmake:
+  application:
+    source-dir: '/opt/nordic/ncs/v3.2.4/zephyr/share/sysbuild'
+  board:
+    name: 'xiao_nrf54l15'
+    path:
+     - '/opt/nordic/ncs/v3.2.4/zephyr/boards/seeed/xiao_nrf54l15'
+    qualifiers: 'nrf54l15/cpuapp'
+    revision: ''
+  images:
+   - name: 'XIAOnRF54L15Dummy'
+     source-dir: '/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy'
+     type: 'MAIN'
+  kconfig:
+    files:
+     - '/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build/_sysbuild/empty.conf'
+     - '/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build/_sysbuild/empty.conf'
+    user-files:
+     - '/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build/_sysbuild/empty.conf'
+  sysbuild: 'true'
+version: '0.1.0'
+west:
+  command: '/opt/nordic/ncs/toolchains/185bb0e3b6/bin/west build -p always -b xiao_nrf54l15/nrf54l15/cpuapp .'
+  topdir: '/opt/nordic/ncs/v3.2.4'
+  version: '1.4.0'

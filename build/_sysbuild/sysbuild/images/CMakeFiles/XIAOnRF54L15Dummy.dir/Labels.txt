@@ -1,0 +1,13 @@
+# Target labels
+ XIAOnRF54L15Dummy
+# Source files and their labels
+/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build/_sysbuild/sysbuild/images/CMakeFiles/XIAOnRF54L15Dummy
+/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build/_sysbuild/sysbuild/images/CMakeFiles/XIAOnRF54L15Dummy.rule
+/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build/_sysbuild/sysbuild/images/CMakeFiles/XIAOnRF54L15Dummy-complete.rule
+/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build/_sysbuild/sysbuild/images/XIAOnRF54L15Dummy-prefix/src/XIAOnRF54L15Dummy-stamp/XIAOnRF54L15Dummy-build.rule
+/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build/_sysbuild/sysbuild/images/XIAOnRF54L15Dummy-prefix/src/XIAOnRF54L15Dummy-stamp/XIAOnRF54L15Dummy-configure.rule
+/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build/_sysbuild/sysbuild/images/XIAOnRF54L15Dummy-prefix/src/XIAOnRF54L15Dummy-stamp/XIAOnRF54L15Dummy-download.rule
+/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build/_sysbuild/sysbuild/images/XIAOnRF54L15Dummy-prefix/src/XIAOnRF54L15Dummy-stamp/XIAOnRF54L15Dummy-install.rule
+/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build/_sysbuild/sysbuild/images/XIAOnRF54L15Dummy-prefix/src/XIAOnRF54L15Dummy-stamp/XIAOnRF54L15Dummy-mkdir.rule
+/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build/_sysbuild/sysbuild/images/XIAOnRF54L15Dummy-prefix/src/XIAOnRF54L15Dummy-stamp/XIAOnRF54L15Dummy-patch.rule
+/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build/_sysbuild/sysbuild/images/XIAOnRF54L15Dummy-prefix/src/XIAOnRF54L15Dummy-stamp/XIAOnRF54L15Dummy-update.rule
