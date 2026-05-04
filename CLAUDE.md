@@ -1,82 +1,62 @@
-# Project Context
+# CLAUDE.md
 
-This project builds a BLE dummy firmware for the Seeed Studio XIAO nRF54L15.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Current Goal
+## Project
 
-Create a Zephyr/Nordic SDK BLE peripheral that receives measurement commands over BLE and returns fake CV trace data.
+BLE dummy firmware for the Seeed Studio XIAO nRF54L15. Simulates a hormone measurement device — receives structured commands over BLE and returns fake CV trace data.
 
-## Hardware
+- **Board target**: `xiao_nrf54l15/nrf54l15/cpuapp`
+- **SDK**: nRF Connect SDK v3.2.4
+- **BLE device name**: `HormoneDummy`
 
-* Board: Seeed Studio XIAO nRF54L15
-* Board target: xiao_nrf54l15/nrf54l15/cpuapp
-* SDK: nRF Connect SDK v3.2.4
-
-## Build Commands
+## Build & Flash
 
 ```bash
 west build -p always -b xiao_nrf54l15/nrf54l15/cpuapp .
 west flash
 ```
 
-## Important Lessons Learned
+Always connect the board directly via USB-C to the Mac — USB hubs cause detection failures.
 
-* USB hubs caused board detection/debugging issues.
-* Direct USB-C connection to the Mac worked.
+## Code Architecture
 
-## Current Verified State
+All firmware lives in `src/main.c`. There is no module split.
 
-* Board is detected when directly connected.
-* `west flash` works successfully.
-* Firmware changes execute on the board.
+### GATT Service Layout
 
-## Next Goal
+| Short UUID | Role | Properties |
+|---|---|---|
+| `cdef0` | Custom service | — |
+| `cdef1` | Read-only dummy | Read |
+| `cdef2` | Command characteristic | Read + Write |
+| `cdef3` | Response characteristic | Read |
 
-Build a custom BLE peripheral dummy firmware that:
+Static buffers: `COMMAND_BUFFER_SIZE 128`, `RESPONSE_BUFFER_SIZE 128`.
 
-1. Advertises over BLE
-2. Accepts commands from Flutter app via write characteristic
-3. Sends fake measurement trace data via notify characteristic
+Write flow: `write_command()` → `build_response()` → response stored in `response_value[]`.
 
-## Expected Command Format
+`build_response()` checks for `"FREQ=100"` in the command; if found it returns a fake trace, otherwise it echoes `ACK:<cmd>`.
 
-```text
+### Known Bug: Long Commands Silently Fail
+
+Commands longer than ~20 bytes (the default ATT MTU payload) trigger the BLE Long Write Procedure, where the ATT stack splits the write into chunks with non-zero offsets. `write_command()` explicitly rejects `offset != 0` with `BT_ATT_ERR_INVALID_OFFSET`, so only the first chunk is processed — leaving `last_command` and `response_value` on their old values.
+
+Short strings like `"test123"` or `"ja"` fit in one ATT packet and work correctly. The full command `START=-800;END=0;FREQ=100;RANGE=10` (30 bytes) does not.
+
+**Fix options** (in order of preference):
+1. Increase ATT MTU via `prj.conf` (`CONFIG_BT_L2CAP_TX_MTU`, `CONFIG_BT_BUF_ACL_RX_SIZE`) so the full command fits in one packet.
+2. Handle Long Write by accumulating chunks across calls with non-zero offsets.
+
+### Expected Command Format
+
+```
 START=-800;END=0;FREQ=100;RANGE=10
 ```
 
-## Recommended BLE Design
-
-### Custom Service
-
-Use one custom 128-bit UUID.
-
-### Characteristics
-
-* Command Characteristic
-
-  * Write / Write Without Response
-
-* Trace Characteristic
-
-  * Notify (preferred)
-  * Optional Read
-
 ## Workflow Rules
 
-* Prove each layer before moving on.
-* Keep changes minimal and testable.
-* Avoid unnecessary abstraction early.
-* Prefer visible verification (LED / BLE advertise / notifications).
-
-## Common Mistakes to Avoid
-
-* Do NOT introduce new frameworks.
-* Do NOT refactor unrelated code.
-* Do NOT change public APIs without asking.
-* Do NOT debug software before confirming hardware connection.
-
-## Read Next
-
-* docs/architecture.md
-* docs/ble-protocol.md
-* docs/use-cases.md
+- Prove each layer before moving on. Keep changes minimal and testable.
+- Prefer visible verification (LED blink, BLE advertise visible in nRF Connect, readable characteristic values).
+- Do NOT introduce new modules or frameworks. Do NOT refactor unrelated code.
+- Do NOT debug software before confirming the board is detected over direct USB-C.
