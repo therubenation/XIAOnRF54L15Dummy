@@ -1,0 +1,7 @@
+/* Redirect console to uart21 (xiao_serial): TX=D6 (P2.08), RX=D7 (P2.07), 115200 baud */
+/ {
+	chosen {
+		zephyr,console = &uart21;
+		zephyr,shell-uart = &uart21;
+	};
+};

@@ -2,20 +2,8 @@
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/bluetooth/uuid.h>
-#include <zephyr/drivers/gpio.h>
 #include <string.h>
 #include <stdio.h>
-
-static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios);
-
-static void error_blink(void)
-{
-    /* Fast blink: BLE init failed */
-    while (1) {
-        gpio_pin_toggle_dt(&led);
-        k_sleep(K_MSEC(100));
-    }
-}
 
 #define DEVICE_NAME CONFIG_BT_DEVICE_NAME
 #define DEVICE_NAME_LEN (sizeof(DEVICE_NAME) - 1)
@@ -84,6 +72,13 @@ static ssize_t read_response(struct bt_conn *conn,
 
 /* LOGIC */
 
+extern const struct bt_gatt_service_static hormone_service;
+
+/* attrs layout: [0] svc, [1-2] read, [3-4] command, [5-6] response, [7] response CCC */
+#define RESPONSE_ATTR_IDX 6
+
+static atomic_t notify_pending = ATOMIC_INIT(0);
+
 static void build_response(const char *cmd)
 {
     if (strstr(cmd, "FREQ=100")) {
@@ -93,6 +88,7 @@ static void build_response(const char *cmd)
         snprintf(response_value, sizeof(response_value),
                  "ACK:%s", cmd);
     }
+    atomic_set(&notify_pending, 1);
 }
 
 /* WRITE */
@@ -108,12 +104,10 @@ static ssize_t write_command(struct bt_conn *conn,
         return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
     }
 
-    /* During Prepare Write phase: validate only, don't commit */
     if (flags & BT_GATT_WRITE_FLAG_PREPARE) {
         return len;
     }
 
-    /* Clear buffer on first (or only) chunk */
     if (offset == 0) {
         memset(last_command, 0, sizeof(last_command));
     }
@@ -121,12 +115,22 @@ static ssize_t write_command(struct bt_conn *conn,
     memcpy(last_command + offset, buf, len);
     last_command[offset + len] = '\0';
 
+    printk("cmd: '%s'\n", last_command);
     build_response(last_command);
 
     return len;
 }
 
 /* GATT */
+
+static void response_ccc_changed(const struct bt_gatt_attr *attr, uint16_t value)
+{
+    ARG_UNUSED(attr);
+    printk("CCC changed: %u\n", value);
+    if (value == BT_GATT_CCC_NOTIFY) {
+        atomic_set(&notify_pending, 1);
+    }
+}
 
 BT_GATT_SERVICE_DEFINE(hormone_service,
     BT_GATT_PRIMARY_SERVICE(&service_uuid),
@@ -137,14 +141,16 @@ BT_GATT_SERVICE_DEFINE(hormone_service,
         read_dummy, NULL, NULL),
 
     BT_GATT_CHARACTERISTIC(&command_uuid.uuid,
-        BT_GATT_CHRC_READ | BT_GATT_CHRC_WRITE,   // NO write without response
+        BT_GATT_CHRC_READ | BT_GATT_CHRC_WRITE,
         BT_GATT_PERM_READ | BT_GATT_PERM_WRITE,
         read_command, write_command, NULL),
 
     BT_GATT_CHARACTERISTIC(&response_uuid.uuid,
-        BT_GATT_CHRC_READ,
+        BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY,
         BT_GATT_PERM_READ,
         read_response, NULL, NULL),
+    BT_GATT_CCC(response_ccc_changed,
+        BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
 );
 
 /* MAIN */
@@ -153,24 +159,28 @@ int main(void)
 {
     int err;
 
-    gpio_pin_configure_dt(&led, GPIO_OUTPUT_INACTIVE);
-
     err = bt_enable(NULL);
     if (err) {
-        error_blink();
+        printk("bt_enable failed: %d\n", err);
+        return err;
     }
+    printk("BLE enabled\n");
 
     err = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1,
                           ad, ARRAY_SIZE(ad),
                           sd, ARRAY_SIZE(sd));
-
     if (err) {
-        error_blink();
+        printk("adv_start failed: %d\n", err);
+        return err;
     }
+    printk("Advertising started\n");
 
-    /* Slow heartbeat: advertising OK */
     while (1) {
-        gpio_pin_toggle_dt(&led);
-        k_sleep(K_MSEC(500));
+        if (atomic_cas(&notify_pending, 1, 0)) {
+            int ret = bt_gatt_notify(NULL, &hormone_service.attrs[RESPONSE_ATTR_IDX],
+                                     response_value, strlen(response_value));
+            printk("notify ret=%d val='%s'\n", ret, response_value);
+        }
+        k_sleep(K_MSEC(100));
     }
 }
