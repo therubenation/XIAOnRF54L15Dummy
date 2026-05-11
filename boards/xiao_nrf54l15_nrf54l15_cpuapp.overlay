@@ -1,15 +1,4 @@
-/* uart21 (xiao_serial) uses GPIO2 pins (FLPR domain) — pinctrl hangs on cpuapp-only build.
-   Console stays on uart20 (default). UART debug not accessible via connector. */
-
-/ {
-    chosen {
-        zephyr,console = &cdc_acm_uart0;
-        zephyr,shell-uart = &cdc_acm_uart0;
-    };
-};
-
-&zephyr_udc0 {
-    cdc_acm_uart0: cdc_acm_uart0 {
-        compatible = "zephyr,cdc-acm-uart";
-    };
-};
+/* nRF54L15 has no USB device controller — CDC ACM is impossible.
+   uart20 (GPIO1.8/1.9) is not on the XIAO header.
+   uart21 (XIAO D6/D7) uses GPIO2 (FLPR domain) and hangs on cpuapp-only builds.
+   Debug output via RTT over J-Link (same USB-C used for west flash). */
