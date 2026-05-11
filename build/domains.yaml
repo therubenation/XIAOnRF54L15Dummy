@@ -1,7 +1,0 @@
-default: XIAOnRF54L15Dummy
-build_dir: /Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build
-domains:
-  - name: XIAOnRF54L15Dummy
-    build_dir: /Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build/XIAOnRF54L15Dummy
-flash_order:
-  - XIAOnRF54L15Dummy

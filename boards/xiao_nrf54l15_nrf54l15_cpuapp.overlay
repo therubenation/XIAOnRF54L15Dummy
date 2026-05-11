@@ -1,7 +1,15 @@
-/* Redirect console to uart21 (xiao_serial): TX=D6 (P2.08), RX=D7 (P2.07), 115200 baud */
+/* uart21 (xiao_serial) uses GPIO2 pins (FLPR domain) — pinctrl hangs on cpuapp-only build.
+   Console stays on uart20 (default). UART debug not accessible via connector. */
+
 / {
-	chosen {
-		zephyr,console = &uart21;
-		zephyr,shell-uart = &uart21;
-	};
+    chosen {
+        zephyr,console = &cdc_acm_uart0;
+        zephyr,shell-uart = &cdc_acm_uart0;
+    };
+};
+
+&zephyr_udc0 {
+    cdc_acm_uart0: cdc_acm_uart0 {
+        compatible = "zephyr,cdc-acm-uart";
+    };
 };
