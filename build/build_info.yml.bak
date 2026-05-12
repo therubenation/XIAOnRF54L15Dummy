@@ -1,5 +1,0 @@
-west:
-  command: /opt/nordic/ncs/toolchains/185bb0e3b6/bin/west build -p always -b xiao_nrf54l15/nrf54l15/cpuapp
-    .
-  topdir: /opt/nordic/ncs/v3.2.4
-  version: 1.4.0
