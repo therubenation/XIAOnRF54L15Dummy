@@ -12,7 +12,6 @@ HWM:INTERNAL=v2
 HWMv2:INTERNAL=True
 WEST:INTERNAL=/opt/nordic/ncs/toolchains/185bb0e3b6/opt/python@3.12/bin/python3.12;-m;west
 WEST_PYTHON:UNINITIALIZED=/opt/nordic/ncs/toolchains/185bb0e3b6/opt/python@3.12/bin/python3.12
-XIAOnRF54L15Dummy_NCS_RUNNER_HEX:INTERNAL=/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/build/merged.hex
 ZEPHYR_BASE:PATH=/opt/nordic/ncs/v3.2.4/zephyr
 Zephyr_DIR:PATH=/opt/nordic/ncs/v3.2.4/zephyr/share/zephyr-package/cmake
 _Python3_EXECUTABLE:INTERNAL=/opt/nordic/ncs/toolchains/185bb0e3b6/opt/python@3.12/bin/python3.12

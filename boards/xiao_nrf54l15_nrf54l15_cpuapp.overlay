@@ -1,7 +1,4 @@
-/* Redirect console to uart21 (xiao_serial): TX=D6 (P2.08), RX=D7 (P2.07), 115200 baud */
-/ {
-	chosen {
-		zephyr,console = &uart21;
-		zephyr,shell-uart = &uart21;
-	};
-};
+/* nRF54L15 has no USB device controller — CDC ACM is impossible.
+   uart20 (GPIO1.8/1.9) is not on the XIAO header.
+   uart21 (XIAO D6/D7) uses GPIO2 (FLPR domain) and hangs on cpuapp-only builds.
+   Debug output via RTT over J-Link (same USB-C used for west flash). */

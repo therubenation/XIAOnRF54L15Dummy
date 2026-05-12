@@ -1547,4 +1547,21 @@ dmic_dev: &pdm20 {
        <10 0 &gpio2 2 0>;
 };
 # 0 "<command-line>" 2
+# 1 "/Users/rubensteijn/GitHub/XIAOnRF54L15Dummy/boards/xiao_nrf54l15_nrf54l15_cpuapp.overlay" 1
+
+
+
+/ {
+    chosen {
+        zephyr,console = &cdc_acm_uart0;
+        zephyr,shell-uart = &cdc_acm_uart0;
+    };
+};
+
+&zephyr_udc0 {
+    cdc_acm_uart0: cdc_acm_uart0 {
+        compatible = "zephyr,cdc-acm-uart";
+    };
+};
+# 0 "<command-line>" 2
 # 1 "/opt/nordic/ncs/v3.2.4/zephyr/misc/empty_file.c"
