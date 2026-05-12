@@ -83,7 +83,7 @@ static void build_response(const char *cmd)
 {
     if (strstr(cmd, "FREQ=100")) {
         snprintf(response_value, sizeof(response_value),
-                 "TRACE:-12,-10,-9,-4,3,12");
+                 "TRACE:-12,-10");
     } else {
         snprintf(response_value, sizeof(response_value),
                  "ACK:%s", cmd);
